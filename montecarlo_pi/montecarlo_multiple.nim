@@ -1,5 +1,4 @@
-import os, random, sequtils, threadpool
-{.experimental: "parallel".}
+import os, random, sequtils
 
 proc inside(): bool =
     let x = rand(1.0)
@@ -18,14 +17,13 @@ proc estimatePi(attempts: uint64): tuple[attempts: uint64, pi: float] =
 
 proc estimateVariousPi(piValues: seq[uint64]): seq[tuple[attempts: uint64, pi: float]] =
     var piResult = piValues.map(proc(value: uint64): tuple[attempts: uint64, pi: float] = (value, 0.0) )
-    parallel:
-        for i in 0..piResult.high:
-            piResult[i] = spawn estimatePi(piResult[i].attempts)
+    for i in 0..piResult.high:
+        piResult[i] = estimatePi(piResult[i].attempts)
 
     return piResult
 
 
 randomize()
-let variousPi : seq[uint64] = @[2_000_000_000.uint64, 2_000_000_000.uint64, 2_000_000_000.uint64, 2_000_000_000.uint64, ]
+let variousPi : seq[uint64] = @[2_000_000_000.uint64, 2_000_000_000.uint64, 2_000_000_000.uint64, 2_000_000_000.uint64]
 let pi = estimateVariousPi(variousPi)
 echo(pi)
